@@ -3,5 +3,6 @@
 **/out
 **/.vscode
 **/.vs
+**/node_modules
 .dotnet
 .Microsoft.DotNet.ImageBuilder
