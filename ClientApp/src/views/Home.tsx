@@ -9,13 +9,9 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -28,11 +24,14 @@ import {
     KeyboardDatePicker
 } from '@material-ui/pickers';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
+import moment from "moment";
 
-import FolderIcon from '@material-ui/icons/Folder';
+import TodayIcon from '@material-ui/icons/Today';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 import AddCircleOutlineRoundedIcon from '@material-ui/icons/AddCircleOutlineRounded';
-
+import CallReceivedIcon from '@material-ui/icons/CallReceived';
+import CallMadeIcon from '@material-ui/icons/CallMade';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -59,21 +58,141 @@ function generate(element: React.ReactElement) {
 
 const Home = () => {
     const classes = useStyles();
-    const [secondary, setSecondary] = React.useState<boolean>(false);
     const [open, setOpen] = React.useState<boolean>(false);
-    const [selectedDate, setSelectedDate] = React.useState<Date | MaterialUiPickersDate | null>(null);
+    const [edit, setEdit] = React.useState<number>(-1);
+    const [data, setData] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [entrada, setEntrada] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [saidaAlmoco, setSaidaAlmoco] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [entradaAlmoco, setEntradaAlmoco] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [saida, setSaida] = React.useState<Date | MaterialUiPickersDate | null>(null);
+    const [pontos, setPontos] = React.useState<any[]>([]);
 
     const handleClickOpen = () => {
         setOpen(true);
+        setEdit(-1);
     };
+
+    const handleEntrada = (hora: MaterialUiPickersDate | null) => {
+        if (!!hora && !!saidaAlmoco && moment(hora).isAfter(saidaAlmoco)) {
+            setEntrada(null);
+            return;
+        }
+        if (!!hora && !!entradaAlmoco && moment(hora).isAfter(entradaAlmoco)) {
+            setEntrada(null);
+            return;
+        }
+        if (!!hora && !!saida && moment(hora).isAfter(saida)) {
+            setEntrada(null);
+            return;
+        }
+
+        setEntrada(hora);
+    }
+
+    const handleSaidaAlmoco = (hora: MaterialUiPickersDate | null) => {
+        if (!!hora && !!entrada && moment(hora).isBefore(entrada)) {
+            setSaidaAlmoco(null);
+            return;
+        }
+        if (!!hora && !!entradaAlmoco && moment(hora).isAfter(entradaAlmoco)) {
+            setSaidaAlmoco(null);
+            return;
+        }
+        if (!!hora && !!saida && moment(hora).isAfter(saida)) {
+            setSaidaAlmoco(null);
+            return;
+        }
+
+        setSaidaAlmoco(hora);
+    }
+
+    const handleEntradaAlmoco = (hora: MaterialUiPickersDate | null) => {
+        if (!!hora && !!entrada && moment(hora).isBefore(entrada)) {
+            setEntradaAlmoco(null);
+            return;
+        }
+        if (!!hora && !!saidaAlmoco && moment(hora).isBefore(saidaAlmoco)) {
+            setEntradaAlmoco(null);
+            return;
+        }
+        if (!!hora && !!saida && moment(hora).isAfter(saida)) {
+            setEntradaAlmoco(null);
+            return;
+        }
+
+        setEntradaAlmoco(hora);
+    }
+
+    const handleSaida = (hora: MaterialUiPickersDate | null) => {
+        if (!!hora && !!entrada && moment(hora).isBefore(entrada)) {
+            setSaida(null);
+            return;
+        }
+        if (!!hora && !!saidaAlmoco && moment(hora).isBefore(saidaAlmoco)) {
+            setSaida(null);
+            return;
+        }
+        if (!!hora && !!entradaAlmoco && moment(hora).isBefore(entradaAlmoco)) {
+            setSaida(null);
+            return;
+        }
+
+        setSaida(hora);
+    }
 
     const handleClose = () => {
         setOpen(false);
+        setEntrada(null);
+        setSaidaAlmoco(null);
+        setEntradaAlmoco(null);
+        setSaida(null);
+        setEdit(-1);
     };
+
+    const handleSave = () => {
+        if(!data) {
+            return;
+        }
+        if (edit == -1) {
+            setPontos([
+                ...pontos,
+                {
+                    data,
+                    entrada,
+                    saidaAlmoco,
+                    entradaAlmoco,
+                    saida,
+                }
+            ]);
+        } else {
+            const pontosCpy = [...pontos];
+            pontosCpy[edit] = {
+                data,
+                entrada,
+                saidaAlmoco,
+                entradaAlmoco,
+                saida,
+            };
+            setPontos(pontosCpy);
+        }
+        handleClose();
+    }
+
+    const removerPonto = (idx: number) => {
+        const pontosCpy = [...pontos];
+        pontosCpy.splice(idx, 1)
+        setPontos(pontosCpy);
+    }
+
+    const editarPonto = (idx: number) => {
+        const ponto = pontos[idx];
+        setEdit(idx);
+        setEntrada(ponto.entrada);
+        setSaidaAlmoco(ponto.saidaAlmoco);
+        setEntradaAlmoco(ponto.entradaAlmoco);
+        setSaida(ponto.saida);
+        setOpen(true);
+    }
 
     const renderDialog = () => (
         <div>
@@ -81,7 +200,7 @@ const Home = () => {
                 <DialogTitle id="form-dialog-title">Bater ponto</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Informe os horarios de seu ponto
+                        Informe a data e os horarios de seu ponto
                     </DialogContentText>
                     <Grid container justify="space-between" spacing={2}>
                          <Grid item xs={12}>
@@ -92,11 +211,12 @@ const Home = () => {
                                 margin="normal"
                                 id="date-picker-inline"
                                 label="Data"
-                                value={selectedDate}
-                                onChange={setSelectedDate}
+                                value={data}
+                                onChange={setData}
                                 KeyboardButtonProps={{
                                     'aria-label': 'change date',
                                 }}
+                                autoOk
                                 />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -108,10 +228,11 @@ const Home = () => {
                                 label="Entrada"
                                 ampm={false}
                                 value={entrada}
-                                onChange={setEntrada}
+                                onChange={handleEntrada}
                                 KeyboardButtonProps={{
                                     'aria-label': 'change time',
                                 }}
+                                autoOk
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -123,10 +244,11 @@ const Home = () => {
                                 label="Saida almoco"
                                 ampm={false}
                                 value={saidaAlmoco}
-                                onChange={setSaidaAlmoco}
+                                onChange={handleSaidaAlmoco}
                                 KeyboardButtonProps={{
                                     'aria-label': 'change time',
                                 }}
+                                autoOk
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -138,10 +260,11 @@ const Home = () => {
                                 label="Entrada almoco"
                                 ampm={false}
                                 value={entradaAlmoco}
-                                onChange={setEntradaAlmoco}
+                                onChange={handleEntradaAlmoco}
                                 KeyboardButtonProps={{
                                     'aria-label': 'change time',
                                 }}
+                                autoOk
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -153,20 +276,21 @@ const Home = () => {
                                 label="Saida"
                                 ampm={false}
                                 value={saida}
-                                onChange={setSaida}
+                                onChange={handleSaida}
                                 KeyboardButtonProps={{
                                     'aria-label': 'change time',
                                 }}
+                                autoOk
                             />
                         </Grid>
                     </Grid>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">
-                        Cancel
+                        Cancelar
                     </Button>
-                    <Button onClick={handleClose} color="primary">
-                        Subscribe
+                    <Button onClick={handleSave} color="primary">
+                        Salvar
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -175,18 +299,6 @@ const Home = () => {
 
     return (
         <div className={classes.root}>
-            <FormGroup row>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={secondary}
-                            onChange={event => setSecondary(event.target.checked)}
-                            value="secondary"
-                        />
-                    }
-                    label="Enable secondary text"
-                />
-            </FormGroup>
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <Typography variant="h6" className={classes.title}>
@@ -197,23 +309,33 @@ const Home = () => {
                     </Typography>
                     <div className={classes.demo}>
                         <List>
-                            {generate(
-                                <ListItem>
+                            {pontos.map((ponto, idx) => (
+                                <ListItem key={idx}>
                                     <ListItemAvatar>
                                         <Avatar>
-                                            <FolderIcon />
+                                            <TodayIcon />
                                         </Avatar>
                                     </ListItemAvatar>
                                     <ListItemText
-                                        primary="Single-line item"
-                                        secondary={secondary ? 'Secondary text' : null}
+                                        primary={moment(ponto.data).format("DD/MM/YYYY")}
+                                        secondary={
+                                            <Grid container spacing={1}>
+                                                {ponto.entrada && <span><CallReceivedIcon fontSize="small" color="primary" /> {moment(ponto.entrada).format("HH:mm")}</span>}
+                                                {ponto.saidaAlmoco && <span><CallMadeIcon fontSize="small" color="error" /> {moment(ponto.saidaAlmoco).format("HH:mm")}</span>}
+                                                {ponto.entradaAlmoco && <span><CallReceivedIcon fontSize="small" color="primary" /> {moment(ponto.entradaAlmoco).format("HH:mm")}</span>}
+                                                {ponto.saida && <span><CallMadeIcon fontSize="small" color="error" /> {moment(ponto.saida).format("HH:mm")}</span>}
+                                            </Grid>
+                                        }
                                     />
                                     <ListItemSecondaryAction>
-                                        <IconButton edge="end" aria-label="delete">
+                                        <IconButton edge="end" aria-label="delete" onClick={() => editarPonto(idx)}>
+                                            <EditIcon />
+                                        </IconButton>
+                                        <IconButton edge="end" aria-label="delete" onClick={() => removerPonto(idx)}>
                                             <DeleteIcon />
                                         </IconButton>
                                     </ListItemSecondaryAction>
-                                </ListItem>,
+                                </ListItem>)
                             )}
                         </List>
                     </div>
