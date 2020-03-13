@@ -1,7 +1,7 @@
 
 \connect sistemadeponto
 
-CREATE TABLE user
+CREATE TABLE "user"
 (
     id serial PRIMARY KEY,
     name VARCHAR (100) NOT NULL
@@ -9,7 +9,7 @@ CREATE TABLE user
 
 ALTER TABLE "user" OWNER TO usuario;
 
-INSERT INTO user(name)
+INSERT INTO "user"(name)
 VALUES('Jackson');
 
 CREATE TABLE ponto

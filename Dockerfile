@@ -17,6 +17,9 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS runtime
 
 WORKDIR /app
 
+# Expose port 80 to your local machine so you can access the app.
+EXPOSE 80
+
 COPY --from=build /app/out .
 
 ENTRYPOINT ["dotnet", "SistemaDePonto.dll"]

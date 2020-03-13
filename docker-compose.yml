@@ -15,7 +15,7 @@ services:
     ports:
       - "8000:80"     
     environment:
-      DB_CONNECTION_STRING: "host=postgres_image;port=5432;database=blogdb;username=usuario;password=usuario"
+      DB_CONNECTION_STRING: "host=postgres_image;port=5432;database=sistemadeponto;username=usuario;password=usuario"
     networks:
       - sistemadeponto-dev  
   
