@@ -1,0 +1,40 @@
+version: '3.4'
+
+networks:
+  sistemadeponto-dev:
+    driver: bridge 
+
+services:
+  sistemadeponto:
+    image: sistemadeponto:latest
+    depends_on:
+      - "postgres_image"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"     
+    environment:
+      DB_CONNECTION_STRING: "host=postgres_image;port=5432;database=blogdb;username=usuario;password=usuario"
+    networks:
+      - sistemadeponto-dev  
+  
+  postgres_image:
+    image: postgres:latest
+    ports:
+      - "5432"
+    restart: always
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+      - ./dbscripts/seed.sql :/docker-entrypoint-initdb.d/seed.sql
+    environment:
+      POSTGRES_USER: "usuario"
+      POSTGRES_PASSWORD: "usuario"
+      POSTGRES_DB: "sistemadeponto"
+    networks:
+      - sistemadeponto-dev
+volumes:
+  db_volume:
+         
+    
+     

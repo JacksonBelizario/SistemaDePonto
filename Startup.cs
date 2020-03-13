@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -6,6 +7,8 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using SistemaDePonto.Models;
 
 namespace SistemaDePonto
 {
@@ -22,6 +25,14 @@ namespace SistemaDePonto
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+            services.AddDbContext<SistemaDbContext>(options =>
+                options.UseNpgsql(
+                    connectionString
+                )
+            );
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
