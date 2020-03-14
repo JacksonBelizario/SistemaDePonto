@@ -10,8 +10,8 @@ using SistemaDePonto.Models;
 namespace SistemaDePonto.Migrations
 {
     [DbContext(typeof(SistemaDbContext))]
-    [Migration("20200314213549_Audit")]
-    partial class Audit
+    [Migration("20200314222931_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,7 +31,7 @@ namespace SistemaDePonto.Migrations
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("IPAddress")
+                    b.Property<string>("IpAddress")
                         .HasColumnType("text");
 
                     b.Property<string>("KeyValues")
@@ -45,9 +45,6 @@ namespace SistemaDePonto.Migrations
 
                     b.Property<string>("TableName")
                         .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

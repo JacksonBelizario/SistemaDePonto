@@ -12,7 +12,7 @@ namespace SistemaDePonto.Maps
             entityBuilder.ToTable("audit");
 
             entityBuilder.Property(x => x.Id).HasColumnName("id");
-            entityBuilder.Property(x => x.UserId).HasColumnName("user_id");
+            entityBuilder.Property(x => x.IpAddress).HasColumnName("ip_address");
             entityBuilder.Property(x => x.TableName).HasColumnName("table_name");
             entityBuilder.Property(x => x.DateTime).HasColumnName("date_time");
             entityBuilder.Property(x => x.KeyValues).HasColumnName("key_values");

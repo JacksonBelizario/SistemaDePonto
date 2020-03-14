@@ -12,13 +12,12 @@ namespace SistemaDePonto.Models
     public class Audit
     {
         public int Id { get; set; }
-        public Guid UserId { get; set; }
         public string TableName { get; set; }
         public DateTime DateTime { get; set; }
         public string KeyValues { get; set; }
         public string OldValues { get; set; }
         public string NewValues { get; set; }
-        public string IPAddress { get; set; }
+        public string IpAddress { get; set; }
     }
 
     public class AuditEntry
@@ -30,7 +29,7 @@ namespace SistemaDePonto.Models
 
         public EntityEntry Entry { get; }
         public string TableName { get; set; }
-        public string IPAddress { get; set; }
+        public string IpAddress { get; set; }
         public Dictionary<string, object> KeyValues { get; } = new Dictionary<string, object>();
         public Dictionary<string, object> OldValues { get; } = new Dictionary<string, object>();
         public Dictionary<string, object> NewValues { get; } = new Dictionary<string, object>();
@@ -43,7 +42,7 @@ namespace SistemaDePonto.Models
             var audit = new Audit();
 
             audit.TableName = TableName;
-            audit.IPAddress = IPAddress;
+            audit.IpAddress = IpAddress;
             audit.DateTime = DateTime.UtcNow;
             audit.KeyValues = JsonConvert.SerializeObject(KeyValues);
             audit.OldValues = OldValues.Count == 0 ? null : JsonConvert.SerializeObject(OldValues);

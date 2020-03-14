@@ -45,7 +45,7 @@ namespace SistemaDePonto.Models
                 var auditEntry = new AuditEntry(entry);
                 auditEntry.TableName = entry.Metadata.GetTableName();
                 //HttpRequest request
-                //auditEntry.IPAddress = request.HttpContext.Connection.RemoteIpAddress.ToString();
+                //auditEntry.IpAddress = request.HttpContext.Connection.RemoteIpAddress.ToString();
                 auditEntries.Add(auditEntry);
 
                 foreach (var property in entry.Properties)

@@ -29,7 +29,7 @@ namespace SistemaDePonto.Migrations
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("IPAddress")
+                    b.Property<string>("IpAddress")
                         .HasColumnType("text");
 
                     b.Property<string>("KeyValues")
@@ -43,9 +43,6 @@ namespace SistemaDePonto.Migrations
 
                     b.Property<string>("TableName")
                         .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
