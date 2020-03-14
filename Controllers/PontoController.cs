@@ -64,6 +64,13 @@ namespace SistemaDePonto.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(Ponto ponto)
         {
+            var pontoExists = _context.Pontos.Any(e => e.UserId == ponto.UserId && e.Dia == ponto.Dia);
+
+            if (pontoExists)
+            {
+                return Forbid();
+            }
+
             _context.Pontos.Add(ponto);
             await _context.SaveChangesAsync();
 

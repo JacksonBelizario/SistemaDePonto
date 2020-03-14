@@ -450,7 +450,7 @@ const Home = () => {
                 </DialogContent>
                 <DialogActions>
                     <div className={classes.wrapper}>
-                        <Button variant="contained" onClick={handleClose} color="primary" disabled={saving}>Cancelar</Button>
+                        <Button variant="contained" onClick={handleClose} color="secondary" disabled={saving}>Cancelar</Button>
                         {saving && <CircularProgress size={24} className={classes.buttonProgress} />}
                     </div>
                     <div className={classes.wrapper}>

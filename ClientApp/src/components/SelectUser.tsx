@@ -6,21 +6,17 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+
 import PersonIcon from '@material-ui/icons/Person';
 import AddIcon from '@material-ui/icons/Add';
-import { blue } from '@material-ui/core/colors';
 
-const emails = [
-    {
-        id: 1,
-        name: 'Jackson'
-    },
-    {
-        id: 2,
-        name: 'Igor'
-    },
-];
+import { blue } from '@material-ui/core/colors';
+import axios from 'axios';
 
 const useStyles = makeStyles({
     avatar: {
@@ -41,8 +37,19 @@ export interface SelectUserProps {
 }
 
 const SelectUser = (props: SelectUserProps) => {
+    React.useEffect(() => {
+        loadUsers();
+    }, []);
     const classes = useStyles();
     const { onClose, selectedValue, open } = props;
+
+    const [openAddUser, setOpenAddUser] = React.useState<boolean>(false);
+    const [saving, setSaving] = React.useState<boolean>(false);
+    const [users, setUsers] = React.useState<IUser[]>([]);
+    const [name, setName] = React.useState<string>('');
+    const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setName(event.target.value);
+    };
 
     const handleClose = () => {
         onClose(selectedValue);
@@ -52,30 +59,73 @@ const SelectUser = (props: SelectUserProps) => {
         onClose(value);
     };
 
+    const loadUsers = async () => {
+
+        try {
+            const { data } = await axios.get('api/users');
+            setUsers(data);
+
+        } catch (ex) {
+            console.error(ex);
+        }
+    }
+
+    const addUser = async () => {
+        if (!name) {
+            return;
+        }
+        try {
+            const { data } = await axios.post('api/users', { name });
+            console.log({ data });
+        } catch (ex) {
+            console.error(ex);
+        }
+        loadUsers();
+    }
+
     return (
-        <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-            <DialogTitle id="simple-dialog-title">Definir funcionario</DialogTitle>
-            <List>
-                {emails.map((email: IUser, idx) => (
-                    <ListItem button onClick={() => handleListItemClick(email)} key={idx}>
+        <>
+            <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+                <DialogTitle id="simple-dialog-title">Definir funcionario</DialogTitle>
+                <List>
+                    {users.map((user: IUser, idx) => (
+                        <ListItem button onClick={() => handleListItemClick(user)} key={idx}>
+                            <ListItemAvatar>
+                                <Avatar className={classes.avatar}>
+                                    <PersonIcon />
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText primary={user.name} />
+                        </ListItem>
+                    ))}
+                    <ListItem autoFocus button onClick={() => { setOpenAddUser(true); setName(''); }}>
                         <ListItemAvatar>
-                            <Avatar className={classes.avatar}>
-                                <PersonIcon />
+                            <Avatar>
+                                <AddIcon />
                             </Avatar>
                         </ListItemAvatar>
-                        <ListItemText primary={email.name} />
+                        <ListItemText primary="Adicionar funcionario" />
                     </ListItem>
-                ))}
-                <ListItem autoFocus button onClick={() => { }}>
-                    <ListItemAvatar>
-                        <Avatar>
-                            <AddIcon />
-                        </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary="Adicionar funcionario" />
-                </ListItem>
-            </List>
-        </Dialog>
+                </List>
+            </Dialog>
+            <Dialog onClose={() => { }} aria-labelledby="simple-dialog-title" open={openAddUser}>
+                <DialogContent>
+                    <TextField
+                        defaultValue={name}
+                        onChange={handleChangeName}
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Nome"
+                        type="email"
+                        fullWidth />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenAddUser(false)} disabled={saving} color="secondary">Cancelar</Button>
+                    <Button onClick={() => {setOpenAddUser(false); addUser()}} disabled={saving} color="primary">Salvar</Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 }
 export default SelectUser;
