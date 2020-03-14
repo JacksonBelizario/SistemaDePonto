@@ -69,17 +69,26 @@ namespace SistemaDePonto.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Ponto ponto)
+        public async Task<IActionResult> Put(int id, [FromBody]Ponto data)
         {
-            if (id != ponto.Id)
-            {
+            if (!ModelState.IsValid)
                 return BadRequest();
-            }
-
-            _context.Entry(ponto).State = EntityState.Modified;
 
             try
             {
+
+                var ponto = await _context.Pontos.FindAsync(id);
+
+                if (ponto == null)
+                {
+                    return NotFound();
+                }
+
+                ponto.Entrada = data.Entrada;
+                ponto.SaidaAlmoco = data.SaidaAlmoco;
+                ponto.EntradaAlmoco = data.EntradaAlmoco;
+                ponto.Saida = data.Saida;
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -95,6 +104,7 @@ namespace SistemaDePonto.Controllers
             }
 
             return NoContent();
+
         }
 
         [HttpDelete("{id}")]

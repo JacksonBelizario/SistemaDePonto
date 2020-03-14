@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
+import CircularProgress from '@material-ui/core/CircularProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
@@ -37,14 +38,18 @@ import axios from "axios";
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            flexGrow: 1,
-            maxWidth: 752,
+            display: 'flex',
+            flexGrow: 1
         },
         demo: {
             backgroundColor: theme.palette.background.paper,
         },
         title: {
             margin: theme.spacing(4, 0, 2),
+        },
+        wrapper: {
+            margin: theme.spacing(1),
+            position: 'relative',
         },
     }),
 );
@@ -64,6 +69,8 @@ const Home = () => {
     }, []);
 
     const classes = useStyles();
+    const [loading, setLoading] = React.useState<boolean>(true);
+    const [saving, setSaving] = React.useState<boolean>(false);
     const [open, setOpen] = React.useState<boolean>(false);
     const [edit, setEdit] = React.useState<number>(-1);
     const [dia, setDia] = React.useState<Date | MaterialUiPickersDate | null>(null);
@@ -88,6 +95,7 @@ const Home = () => {
         } catch (ex) {
             console.error(ex);
         }
+        setLoading(false);
     } 
 
     const handleClickOpen = () => {
@@ -216,6 +224,7 @@ const Home = () => {
         if(!dia) {
             return;
         }
+        setSaving(true);
         try {
             if (edit === -1) {
                 const { data } = await axios.post('/api/ponto', {
@@ -228,11 +237,11 @@ const Home = () => {
                 });
 
                 console.log({ data });
-
+                const { id } = data;
                 setPontos([
                     ...pontos,
                     {
-                        id: -1,
+                        id,
                         dia,
                         entrada,
                         saidaAlmoco,
@@ -269,12 +278,13 @@ const Home = () => {
         } catch (ex) {
             console.error(ex);
         }
+        setSaving(false);
     }
 
     const removerPonto = async (idx: number) => {
         try {
             const pontosCpy = [...pontos];
-            const { id } = pontosCpy[edit];
+            const { id } = pontosCpy[idx];
 
             const { data } = await axios.delete(`/api/ponto/${id}`);
             console.log({ data });
@@ -299,7 +309,14 @@ const Home = () => {
 
     const renderDialog = () => (
         <div>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+            <Dialog
+                disableBackdropClick
+                disableEscapeKeyDown
+                maxWidth="xs"
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="form-dialog-title"
+            >
                 <DialogTitle id="form-dialog-title">Bater ponto</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -394,16 +411,22 @@ const Home = () => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Cancelar
-                    </Button>
-                    <Button onClick={handleSave} color="primary">
-                        Salvar
-                    </Button>
+                    <div className={classes.wrapper}>
+                        <Button variant="contained" onClick={handleClose} color="primary" disabled={saving}>Cancelar</Button>
+                        {saving && <CircularProgress size={24} />}
+                    </div>
+                    <div className={classes.wrapper}>
+                        <Button variant="contained" onClick={handleSave} color="primary" disabled={saving}>Salvar</Button>
+                        {saving && <CircularProgress size={24} />}
+                    </div>
                 </DialogActions>
             </Dialog>
         </div>
     );
+
+    if (loading) {
+        return <div className={classes.root} style={{ justifyContent: 'center', marginTop: 50 }}> <CircularProgress /></div>
+    }
 
     return (
         <div className={classes.root}>
