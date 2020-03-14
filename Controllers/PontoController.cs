@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System;
+using System.Threading.Tasks;
+
 namespace SistemaDePonto.Controllers
 {
     [Route("api/[controller]")]
@@ -21,7 +23,7 @@ namespace SistemaDePonto.Controllers
             return _context.Pontos.Select((c) => new
             {
                 Id = c.Id,
-                Data = c.Data,
+                Dia = c.Dia,
                 Entrada = c.Entrada,
                 SaidaAlmoco = c.SaidaAlmoco,
                 EntradaAlmoco = c.EntradaAlmoco,
@@ -29,18 +31,27 @@ namespace SistemaDePonto.Controllers
             }).ToList();
         }
 
-        [HttpGet("{data}")]
-        public object GetByDate(DateTime data)
+        [HttpGet("{dia}")]
+        public object GetByDate(DateTime dia)
         {
-            return _context.Pontos.Where(b => b.Data == data).Select((c) => new
+            return _context.Pontos.Where(b => b.Dia == dia).Select((c) => new
             {
                 Id = c.Id,
-                Data = c.Data,
+                Dia = c.Dia,
                 Entrada = c.Entrada,
                 SaidaAlmoco = c.SaidaAlmoco,
                 EntradaAlmoco = c.EntradaAlmoco,
                 Saida = c.Saida
             }).ToList();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post(Ponto pontos)
+        {
+            _context.Pontos.Add(pontos);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("Get", new { id = pontos.Id }, pontos);
         }
 
     }

@@ -18,6 +18,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+import TodayIcon from '@material-ui/icons/Today';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import AddCircleOutlineRoundedIcon from '@material-ui/icons/AddCircleOutlineRounded';
+import CallReceivedIcon from '@material-ui/icons/CallReceived';
+import CallMadeIcon from '@material-ui/icons/CallMade';
 
 import {
     KeyboardTimePicker,
@@ -26,12 +32,7 @@ import {
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import moment from "moment";
 
-import TodayIcon from '@material-ui/icons/Today';
-import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
-import AddCircleOutlineRoundedIcon from '@material-ui/icons/AddCircleOutlineRounded';
-import CallReceivedIcon from '@material-ui/icons/CallReceived';
-import CallMadeIcon from '@material-ui/icons/CallMade';
+import axios from "axios";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -48,40 +49,79 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-function generate(element: React.ReactElement) {
-    return [0, 1, 2].map(value =>
-        React.cloneElement(element, {
-            key: value,
-        }),
-    );
+declare type pontoType = {
+    id: number,
+    dia: Date | MaterialUiPickersDate,
+    entrada: Date | MaterialUiPickersDate | null,
+    saidaAlmoco: Date | MaterialUiPickersDate | null,
+    entradaAlmoco: Date | MaterialUiPickersDate | null,
+    saida: Date | MaterialUiPickersDate | null,
 }
 
 const Home = () => {
+    React.useEffect(() => {
+        loadData();
+    }, []);
+
     const classes = useStyles();
     const [open, setOpen] = React.useState<boolean>(false);
     const [edit, setEdit] = React.useState<number>(-1);
-    const [data, setData] = React.useState<Date | MaterialUiPickersDate | null>(null);
+    const [dia, setDia] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [entrada, setEntrada] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [saidaAlmoco, setSaidaAlmoco] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [entradaAlmoco, setEntradaAlmoco] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [saida, setSaida] = React.useState<Date | MaterialUiPickersDate | null>(null);
-    const [pontos, setPontos] = React.useState<any[]>([]);
+    const [pontos, setPontos] = React.useState<pontoType[]>([]);
+
+    const loadData = async () => {
+        const { data } = await axios.get('/api/ponto');
+
+        setPontos(data.map((o: pontoType) => ({
+            dia: o.dia ? moment(o.dia) : null,
+            entrada: o.entrada ? moment(o.entrada) : null,
+            saidaAlmoco: o.saidaAlmoco ? moment(o.saidaAlmoco) : null,
+            entradaAlmoco: o.entradaAlmoco ? moment(o.entradaAlmoco) : null,
+            saida: o.saida ? moment(o.saida) : null,
+        })));
+    } 
 
     const handleClickOpen = () => {
         setOpen(true);
         setEdit(-1);
     };
 
+    const handleDia = (date: MaterialUiPickersDate | null) => {
+        if (!date) {
+            setDia(null);
+            return;
+        }
+        setDia(moment(date).startOf('day'));
+    }
+
+    const parseTime = (hora: MaterialUiPickersDate) => {
+        // @ts-ignore
+        let time = moment(hora).format("HH:mm:ss");
+        // @ts-ignore
+        let date = moment(dia).format("YYYY-MM-DD"); 
+        return moment(`${date}T${time}`);
+    }
+
     const handleEntrada = (hora: MaterialUiPickersDate | null) => {
-        if (!!hora && !!saidaAlmoco && moment(hora).isAfter(saidaAlmoco)) {
+        if (!hora || !dia) {
             setEntrada(null);
             return;
         }
-        if (!!hora && !!entradaAlmoco && moment(hora).isAfter(entradaAlmoco)) {
+        hora = parseTime(hora);
+
+        if (!!saidaAlmoco && moment(hora).isAfter(saidaAlmoco)) {
             setEntrada(null);
             return;
         }
-        if (!!hora && !!saida && moment(hora).isAfter(saida)) {
+        if (!!entradaAlmoco && moment(hora).isAfter(entradaAlmoco)) {
+            setEntrada(null);
+            return;
+        }
+        if (!!saida && moment(hora).isAfter(saida)) {
             setEntrada(null);
             return;
         }
@@ -90,15 +130,21 @@ const Home = () => {
     }
 
     const handleSaidaAlmoco = (hora: MaterialUiPickersDate | null) => {
-        if (!!hora && !!entrada && moment(hora).isBefore(entrada)) {
+        if (!hora || !dia) {
             setSaidaAlmoco(null);
             return;
         }
-        if (!!hora && !!entradaAlmoco && moment(hora).isAfter(entradaAlmoco)) {
+        hora = parseTime(hora);
+
+        if (!!entrada && moment(hora).isBefore(entrada)) {
             setSaidaAlmoco(null);
             return;
         }
-        if (!!hora && !!saida && moment(hora).isAfter(saida)) {
+        if (!!entradaAlmoco && moment(hora).isAfter(entradaAlmoco)) {
+            setSaidaAlmoco(null);
+            return;
+        }
+        if (!!saida && moment(hora).isAfter(saida)) {
             setSaidaAlmoco(null);
             return;
         }
@@ -107,15 +153,21 @@ const Home = () => {
     }
 
     const handleEntradaAlmoco = (hora: MaterialUiPickersDate | null) => {
-        if (!!hora && !!entrada && moment(hora).isBefore(entrada)) {
+        if (!hora || !dia) {
             setEntradaAlmoco(null);
             return;
         }
-        if (!!hora && !!saidaAlmoco && moment(hora).isBefore(saidaAlmoco)) {
+        hora = parseTime(hora);
+
+        if (!!entrada && moment(hora).isBefore(entrada)) {
             setEntradaAlmoco(null);
             return;
         }
-        if (!!hora && !!saida && moment(hora).isAfter(saida)) {
+        if (!!saidaAlmoco && moment(hora).isBefore(saidaAlmoco)) {
+            setEntradaAlmoco(null);
+            return;
+        }
+        if (!!saida && moment(hora).isAfter(saida)) {
             setEntradaAlmoco(null);
             return;
         }
@@ -124,15 +176,21 @@ const Home = () => {
     }
 
     const handleSaida = (hora: MaterialUiPickersDate | null) => {
-        if (!!hora && !!entrada && moment(hora).isBefore(entrada)) {
+        if (!hora || !dia) {
             setSaida(null);
             return;
         }
-        if (!!hora && !!saidaAlmoco && moment(hora).isBefore(saidaAlmoco)) {
+        hora = parseTime(hora);
+
+        if (!!entrada && moment(hora).isBefore(entrada)) {
             setSaida(null);
             return;
         }
-        if (!!hora && !!entradaAlmoco && moment(hora).isBefore(entradaAlmoco)) {
+        if (!!saidaAlmoco && moment(hora).isBefore(saidaAlmoco)) {
+            setSaida(null);
+            return;
+        }
+        if (!!entradaAlmoco && moment(hora).isBefore(entradaAlmoco)) {
             setSaida(null);
             return;
         }
@@ -149,25 +207,37 @@ const Home = () => {
         setEdit(-1);
     };
 
-    const handleSave = () => {
-        if(!data) {
+    const handleSave = async () => {
+        if(!dia) {
             return;
         }
-        if (edit == -1) {
+        if (edit === -1) {
             setPontos([
                 ...pontos,
                 {
-                    data,
+                    id: -1,
+                    dia,
                     entrada,
                     saidaAlmoco,
                     entradaAlmoco,
                     saida,
                 }
             ]);
+            const { data } = await axios.post('/api/ponto', {
+                userId: 1,
+                dia,
+                entrada,
+                saidaAlmoco,
+                entradaAlmoco,
+                saida,
+            });
+
+            console.log({ data });
         } else {
             const pontosCpy = [...pontos];
             pontosCpy[edit] = {
-                data,
+                id: pontosCpy[edit].id,
+                dia,
                 entrada,
                 saidaAlmoco,
                 entradaAlmoco,
@@ -187,6 +257,7 @@ const Home = () => {
     const editarPonto = (idx: number) => {
         const ponto = pontos[idx];
         setEdit(idx);
+        setDia(ponto.dia);
         setEntrada(ponto.entrada);
         setSaidaAlmoco(ponto.saidaAlmoco);
         setEntradaAlmoco(ponto.entradaAlmoco);
@@ -206,13 +277,14 @@ const Home = () => {
                          <Grid item xs={12}>
                             <KeyboardDatePicker
                                 disableToolbar
+                                disabled={!(edit === -1)}
                                 variant="inline"
                                 format="DD/MM/YYYY"
                                 margin="normal"
                                 id="date-picker-inline"
                                 label="Data"
-                                value={data}
-                                onChange={setData}
+                                value={dia}
+                                onChange={handleDia}
                                 KeyboardButtonProps={{
                                     'aria-label': 'change date',
                                 }}
@@ -222,6 +294,7 @@ const Home = () => {
                         <Grid item xs={12} md={6}>
                             <KeyboardTimePicker
                                 disableToolbar
+                                disabled={!dia}
                                 variant="inline"
                                 margin="normal"
                                 id="time-picker"
@@ -238,6 +311,7 @@ const Home = () => {
                         <Grid item xs={12} md={6}>
                             <KeyboardTimePicker
                                 disableToolbar
+                                disabled={!dia}
                                 variant="inline"
                                 margin="normal"
                                 id="time-picker"
@@ -254,6 +328,7 @@ const Home = () => {
                         <Grid item xs={12} md={6}>
                             <KeyboardTimePicker
                                 disableToolbar
+                                disabled={!dia}
                                 variant="inline"
                                 margin="normal"
                                 id="time-picker"
@@ -270,6 +345,7 @@ const Home = () => {
                         <Grid item xs={12} md={6}>
                             <KeyboardTimePicker
                                 disableToolbar
+                                disabled={!dia}
                                 variant="inline"
                                 margin="normal"
                                 id="time-picker"
@@ -309,7 +385,7 @@ const Home = () => {
                     </Typography>
                     <div className={classes.demo}>
                         <List>
-                            {pontos.map((ponto, idx) => (
+                            {pontos.map((ponto : pontoType, idx) => (
                                 <ListItem key={idx}>
                                     <ListItemAvatar>
                                         <Avatar>
@@ -317,7 +393,7 @@ const Home = () => {
                                         </Avatar>
                                     </ListItemAvatar>
                                     <ListItemText
-                                        primary={moment(ponto.data).format("DD/MM/YYYY")}
+                                        primary={ponto.dia && moment(ponto.dia).format("DD/MM/YYYY")}
                                         secondary={
                                             <Grid container spacing={1}>
                                                 {ponto.entrada && <span><CallReceivedIcon fontSize="small" color="primary" /> {moment(ponto.entrada).format("HH:mm")}</span>}

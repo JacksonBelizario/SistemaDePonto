@@ -14,7 +14,7 @@ namespace SistemaDePonto.Maps
 
             entityBuilder.Property(x => x.Id).HasColumnName("id");
             entityBuilder.Property(x => x.UserId).HasColumnName("user_id");
-            entityBuilder.Property(x => x.Data).HasColumnName("data");
+            entityBuilder.Property(x => x.Dia).HasColumnName("dia");
             entityBuilder.Property(x => x.Entrada).HasColumnName("entrada");
             entityBuilder.Property(x => x.SaidaAlmoco).HasColumnName("saida_almoco");
             entityBuilder.Property(x => x.EntradaAlmoco).HasColumnName("entrada_almoco");
