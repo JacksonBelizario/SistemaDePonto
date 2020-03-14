@@ -74,15 +74,20 @@ const Home = () => {
     const [pontos, setPontos] = React.useState<pontoType[]>([]);
 
     const loadData = async () => {
-        const { data } = await axios.get('/api/ponto');
+        try {
+            const { data } = await axios.get('/api/ponto');
 
-        setPontos(data.map((o: pontoType) => ({
-            dia: o.dia ? moment(o.dia) : null,
-            entrada: o.entrada ? moment(o.entrada) : null,
-            saidaAlmoco: o.saidaAlmoco ? moment(o.saidaAlmoco) : null,
-            entradaAlmoco: o.entradaAlmoco ? moment(o.entradaAlmoco) : null,
-            saida: o.saida ? moment(o.saida) : null,
-        })));
+            setPontos(data.map((o: pontoType) => ({
+                id: o.id,
+                dia: o.dia ? moment(o.dia) : null,
+                entrada: o.entrada ? moment(o.entrada) : null,
+                saidaAlmoco: o.saidaAlmoco ? moment(o.saidaAlmoco) : null,
+                entradaAlmoco: o.entradaAlmoco ? moment(o.entradaAlmoco) : null,
+                saida: o.saida ? moment(o.saida) : null,
+            })));
+        } catch (ex) {
+            console.error(ex);
+        }
     } 
 
     const handleClickOpen = () => {
@@ -211,47 +216,74 @@ const Home = () => {
         if(!dia) {
             return;
         }
-        if (edit === -1) {
-            setPontos([
-                ...pontos,
-                {
-                    id: -1,
+        try {
+            if (edit === -1) {
+                const { data } = await axios.post('/api/ponto', {
+                    userId: 1,
+                    dia: dia ? moment(dia).format() : null,
+                    entrada: entrada ? moment(entrada).format() : null,
+                    saidaAlmoco: saidaAlmoco ? moment(saidaAlmoco).format() : null,
+                    entradaAlmoco: entradaAlmoco ? moment(entradaAlmoco).format() : null,
+                    saida: saida ? moment(saida).format() : null,
+                });
+
+                console.log({ data });
+
+                setPontos([
+                    ...pontos,
+                    {
+                        id: -1,
+                        dia,
+                        entrada,
+                        saidaAlmoco,
+                        entradaAlmoco,
+                        saida,
+                    }
+                ]);
+            } else {
+                const pontosCpy = [...pontos];
+                const { id } = pontosCpy[edit];
+
+                const { data } = await axios.put(`/api/ponto/${id}`, {
+                    userId: 1,
+                    dia: dia ? moment(dia).format() : null,
+                    entrada: entrada ? moment(entrada).format() : null,
+                    saidaAlmoco: saidaAlmoco ? moment(saidaAlmoco).format() : null,
+                    entradaAlmoco: entradaAlmoco ? moment(entradaAlmoco).format() : null,
+                    saida: saida ? moment(saida).format() : null,
+                });
+
+                console.log({ data });
+
+                pontosCpy[edit] = {
+                    id,
                     dia,
                     entrada,
                     saidaAlmoco,
                     entradaAlmoco,
                     saida,
-                }
-            ]);
-            const { data } = await axios.post('/api/ponto', {
-                userId: 1,
-                dia,
-                entrada,
-                saidaAlmoco,
-                entradaAlmoco,
-                saida,
-            });
-
-            console.log({ data });
-        } else {
-            const pontosCpy = [...pontos];
-            pontosCpy[edit] = {
-                id: pontosCpy[edit].id,
-                dia,
-                entrada,
-                saidaAlmoco,
-                entradaAlmoco,
-                saida,
-            };
-            setPontos(pontosCpy);
+                };
+                setPontos(pontosCpy);
+            }
+            handleClose();
+        } catch (ex) {
+            console.error(ex);
         }
-        handleClose();
     }
 
-    const removerPonto = (idx: number) => {
-        const pontosCpy = [...pontos];
-        pontosCpy.splice(idx, 1)
-        setPontos(pontosCpy);
+    const removerPonto = async (idx: number) => {
+        try {
+            const pontosCpy = [...pontos];
+            const { id } = pontosCpy[edit];
+
+            const { data } = await axios.delete(`/api/ponto/${id}`);
+            console.log({ data });
+
+            pontosCpy.splice(idx, 1)
+            setPontos(pontosCpy);
+        } catch (ex) {
+            console.error(ex);
+        }
     }
 
     const editarPonto = (idx: number) => {

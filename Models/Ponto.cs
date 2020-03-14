@@ -10,9 +10,9 @@ namespace SistemaDePonto.Models
         public int Id { get; set; }
         public int UserId { get; set; }
         public DateTime Dia { get; set; }
-        public DateTime Entrada { get; set; }
-        public DateTime SaidaAlmoco { get; set; }
-        public DateTime EntradaAlmoco { get; set; }
-        public DateTime Saida { get; set; }
+        public DateTime? Entrada { get; set; }
+        public DateTime? SaidaAlmoco { get; set; }
+        public DateTime? EntradaAlmoco { get; set; }
+        public DateTime? Saida { get; set; }
     }
 }

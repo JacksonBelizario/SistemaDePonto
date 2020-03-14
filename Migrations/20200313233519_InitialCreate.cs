@@ -16,10 +16,10 @@ namespace SistemaDePonto.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     user_id = table.Column<int>(nullable: false),
                     dia = table.Column<DateTime>(nullable: false),
-                    entrada = table.Column<DateTime>(nullable: false),
-                    saida_almoco = table.Column<DateTime>(nullable: false),
-                    entrada_almoco = table.Column<DateTime>(nullable: false),
-                    saida = table.Column<DateTime>(nullable: false)
+                    entrada = table.Column<DateTime>(nullable: true),
+                    saida_almoco = table.Column<DateTime>(nullable: true),
+                    entrada_almoco = table.Column<DateTime>(nullable: true),
+                    saida = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace SistemaDePonto.Controllers
 {
@@ -31,10 +32,10 @@ namespace SistemaDePonto.Controllers
             }).ToList();
         }
 
-        [HttpGet("{dia}")]
-        public object GetByDate(DateTime dia)
+        [HttpGet("{user_id}")]
+        public object GetByUser(int user_id)
         {
-            return _context.Pontos.Where(b => b.Dia == dia).Select((c) => new
+            return _context.Pontos.Where(b => b.UserId == user_id).Select((c) => new
             {
                 Id = c.Id,
                 Dia = c.Dia,
@@ -45,14 +46,76 @@ namespace SistemaDePonto.Controllers
             }).ToList();
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Post(Ponto pontos)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetById(int id)
         {
-            _context.Pontos.Add(pontos);
-            await _context.SaveChangesAsync();
+            var ponto = await _context.Pontos.FindAsync(id);
 
-            return CreatedAtAction("Get", new { id = pontos.Id }, pontos);
+            if (ponto == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(ponto);
         }
 
+        [HttpPost]
+        public async Task<ActionResult> Post(Ponto ponto)
+        {
+            _context.Pontos.Add(ponto);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("Get", new { id = ponto.Id }, ponto);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, Ponto ponto)
+        {
+            if (id != ponto.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(ponto).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PontoExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeletePonto(int id)
+        {
+            var ponto = await _context.Pontos.FindAsync(id);
+            if (ponto == null)
+            {
+                return NotFound();
+            }
+
+            _context.Pontos.Remove(ponto);
+            await _context.SaveChangesAsync();
+
+            return Ok(ponto);
+        }
+
+        private bool PontoExists(int id)
+        {
+            return _context.Pontos.Any(e => e.Id == id);
+        }
     }
+
 }
