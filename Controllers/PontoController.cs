@@ -24,6 +24,7 @@ namespace SistemaDePonto.Controllers
             return _context.Pontos.Select((c) => new
             {
                 Id = c.Id,
+                UserId = c.UserId,
                 Dia = c.Dia,
                 Entrada = c.Entrada,
                 SaidaAlmoco = c.SaidaAlmoco,
@@ -32,10 +33,11 @@ namespace SistemaDePonto.Controllers
             }).ToList();
         }
 
-        [HttpGet("{user_id}")]
-        public object GetByUser(int user_id)
+        [Route("user/{userId}")]
+        [HttpGet]
+        public object GetByUser(int userId)
         {
-            return _context.Pontos.Where(b => b.UserId == user_id).Select((c) => new
+            return _context.Pontos.Where(b => b.UserId == userId).Select((c) => new
             {
                 Id = c.Id,
                 Dia = c.Dia,
@@ -107,6 +109,7 @@ namespace SistemaDePonto.Controllers
 
         }
 
+        [Route("[controller]")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeletePonto(int id)
         {

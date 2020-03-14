@@ -62,34 +62,44 @@ const useStyles = makeStyles((theme: Theme) =>
             margin: theme.spacing(1),
             position: 'relative',
         },
+        buttonProgress: {
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            marginTop: -12,
+            marginLeft: -12,
+        },
     }),
 );
 
-declare type pontoType = {
+declare type IDate = Date | MaterialUiPickersDate;
+
+declare type IPonto = {
     id: number,
-    dia: Date | MaterialUiPickersDate,
-    entrada: Date | MaterialUiPickersDate | null,
-    saidaAlmoco: Date | MaterialUiPickersDate | null,
-    entradaAlmoco: Date | MaterialUiPickersDate | null,
-    saida: Date | MaterialUiPickersDate | null,
+    userId: number,
+    dia: IDate,
+    entrada: IDate,
+    saidaAlmoco: IDate,
+    entradaAlmoco: IDate,
+    saida: IDate,
 }
 
 const Home = () => {
     React.useEffect(() => {
-        loadData();
+        // loadData();
     }, []);
 
     const classes = useStyles();
-    const [loading, setLoading] = React.useState<boolean>(true);
+    const [loading, setLoading] = React.useState<boolean>(false);
     const [saving, setSaving] = React.useState<boolean>(false);
     const [open, setOpen] = React.useState<boolean>(false);
     const [edit, setEdit] = React.useState<number>(-1);
-    const [dia, setDia] = React.useState<Date | MaterialUiPickersDate | null>(null);
-    const [entrada, setEntrada] = React.useState<Date | MaterialUiPickersDate | null>(null);
-    const [saidaAlmoco, setSaidaAlmoco] = React.useState<Date | MaterialUiPickersDate | null>(null);
-    const [entradaAlmoco, setEntradaAlmoco] = React.useState<Date | MaterialUiPickersDate | null>(null);
-    const [saida, setSaida] = React.useState<Date | MaterialUiPickersDate | null>(null);
-    const [pontos, setPontos] = React.useState<pontoType[]>([]);
+    const [dia, setDia] = React.useState<IDate>(null);
+    const [entrada, setEntrada] = React.useState<IDate>(null);
+    const [saidaAlmoco, setSaidaAlmoco] = React.useState<IDate>(null);
+    const [entradaAlmoco, setEntradaAlmoco] = React.useState<IDate>(null);
+    const [saida, setSaida] = React.useState<IDate>(null);
+    const [pontos, setPontos] = React.useState<IPonto[]>([]);
 
 
     const [openDialogUser, setOpenDialogUser] = React.useState(false);
@@ -99,14 +109,20 @@ const Home = () => {
     const handleCloseDialogUser = (value: IUser) => {
         setOpenDialogUser(false);
         setUser(value);
+        loadData(value);
     };
-
-    const loadData = async () => {
+    const loadData = async (value: IUser) => {
+        const { id } = value;
+        if (!id || id === -1) {
+            return;
+        }
+        setLoading(true);
         try {
-            const { data } = await axios.get('/api/ponto');
+            const { data } = await axios.get(`/api/ponto/user/${id}`);
 
-            setPontos(data.map((o: pontoType) => ({
+            setPontos(data.map((o: IPonto) => ({
                 id: o.id,
+                userId: o.userId,
                 dia: o.dia ? moment(o.dia) : null,
                 entrada: o.entrada ? moment(o.entrada) : null,
                 saidaAlmoco: o.saidaAlmoco ? moment(o.saidaAlmoco) : null,
@@ -124,7 +140,7 @@ const Home = () => {
         setEdit(-1);
     };
 
-    const handleDia = (date: MaterialUiPickersDate | null) => {
+    const handleDia = (date: IDate) => {
         if (!date) {
             setDia(null);
             return;
@@ -132,7 +148,7 @@ const Home = () => {
         setDia(moment(date).startOf('day'));
     }
 
-    const parseTime = (hora: MaterialUiPickersDate) => {
+    const parseTime = (hora: IDate) => {
         // @ts-ignore
         let time = moment(hora).format("HH:mm:ss");
         // @ts-ignore
@@ -140,7 +156,7 @@ const Home = () => {
         return moment(`${date}T${time}`);
     }
 
-    const handleEntrada = (hora: MaterialUiPickersDate | null) => {
+    const handleEntrada = (hora: IDate) => {
         if (!hora || !dia) {
             setEntrada(null);
             return;
@@ -163,7 +179,7 @@ const Home = () => {
         setEntrada(hora);
     }
 
-    const handleSaidaAlmoco = (hora: MaterialUiPickersDate | null) => {
+    const handleSaidaAlmoco = (hora: IDate) => {
         if (!hora || !dia) {
             setSaidaAlmoco(null);
             return;
@@ -186,7 +202,7 @@ const Home = () => {
         setSaidaAlmoco(hora);
     }
 
-    const handleEntradaAlmoco = (hora: MaterialUiPickersDate | null) => {
+    const handleEntradaAlmoco = (hora: IDate) => {
         if (!hora || !dia) {
             setEntradaAlmoco(null);
             return;
@@ -209,7 +225,7 @@ const Home = () => {
         setEntradaAlmoco(hora);
     }
 
-    const handleSaida = (hora: MaterialUiPickersDate | null) => {
+    const handleSaida = (hora: IDate) => {
         if (!hora || !dia) {
             setSaida(null);
             return;
@@ -249,7 +265,7 @@ const Home = () => {
         try {
             if (edit === -1) {
                 const { data } = await axios.post('/api/ponto', {
-                    userId: 1,
+                    userId: user.id,
                     dia: dia ? moment(dia).format() : null,
                     entrada: entrada ? moment(entrada).format() : null,
                     saidaAlmoco: saidaAlmoco ? moment(saidaAlmoco).format() : null,
@@ -263,6 +279,7 @@ const Home = () => {
                     ...pontos,
                     {
                         id,
+                        userId: user.id,
                         dia,
                         entrada,
                         saidaAlmoco,
@@ -272,10 +289,9 @@ const Home = () => {
                 ]);
             } else {
                 const pontosCpy = [...pontos];
-                const { id } = pontosCpy[edit];
+                const { id, userId } = pontosCpy[edit];
 
                 const { data } = await axios.put(`/api/ponto/${id}`, {
-                    userId: 1,
                     dia: dia ? moment(dia).format() : null,
                     entrada: entrada ? moment(entrada).format() : null,
                     saidaAlmoco: saidaAlmoco ? moment(saidaAlmoco).format() : null,
@@ -287,6 +303,7 @@ const Home = () => {
 
                 pontosCpy[edit] = {
                     id,
+                    userId,
                     dia,
                     entrada,
                     saidaAlmoco,
@@ -434,11 +451,11 @@ const Home = () => {
                 <DialogActions>
                     <div className={classes.wrapper}>
                         <Button variant="contained" onClick={handleClose} color="primary" disabled={saving}>Cancelar</Button>
-                        {saving && <CircularProgress size={24} />}
+                        {saving && <CircularProgress size={24} className={classes.buttonProgress} />}
                     </div>
                     <div className={classes.wrapper}>
                         <Button variant="contained" onClick={handleSave} color="primary" disabled={saving}>Salvar</Button>
-                        {saving && <CircularProgress size={24} />}
+                        {saving && <CircularProgress size={24} className={classes.buttonProgress} />}
                     </div>
                 </DialogActions>
             </Dialog>
@@ -459,13 +476,15 @@ const Home = () => {
                             <CachedIcon />
                         </IconButton>
                         <Typography variant="subtitle1" style={{flex: 1, marginLeft: 20}}>{user.name}</Typography>
-                        <Fab color="secondary" aria-label="add" onClick={handleClickOpen}>
-                            <AddIcon />
-                        </Fab>
+                        { (user.id && user.id !== -1) &&
+                            <Fab color="secondary" aria-label="add" onClick={handleClickOpen}>
+                                <AddIcon />
+                            </Fab>
+                        }
                     </Grid>
                     <div className={classes.demo}>
                         <List>
-                            {pontos.map((ponto : pontoType, idx) => (
+                            {pontos.map((ponto : IPonto, idx) => (
                                 <ListItem key={idx}>
                                     <ListItemAvatar>
                                         <Avatar>
