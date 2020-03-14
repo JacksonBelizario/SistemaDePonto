@@ -18,13 +18,17 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Fab from '@material-ui/core/Fab';
 
+import AddIcon from '@material-ui/icons/Add';
 import TodayIcon from '@material-ui/icons/Today';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-import AddCircleOutlineRoundedIcon from '@material-ui/icons/AddCircleOutlineRounded';
+import CachedIcon from '@material-ui/icons/Cached';
 import CallReceivedIcon from '@material-ui/icons/CallReceived';
 import CallMadeIcon from '@material-ui/icons/CallMade';
+
+import SelectUser, { IUser } from '../components/SelectUser';
 
 import {
     KeyboardTimePicker,
@@ -39,7 +43,14 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             display: 'flex',
-            flexGrow: 1
+            flexGrow: 1,
+            position: 'relative',
+            marginTop: 20
+        },
+        fab: {
+            position: 'absolute',
+            bottom: theme.spacing(2),
+            right: theme.spacing(2),
         },
         demo: {
             backgroundColor: theme.palette.background.paper,
@@ -79,6 +90,16 @@ const Home = () => {
     const [entradaAlmoco, setEntradaAlmoco] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [saida, setSaida] = React.useState<Date | MaterialUiPickersDate | null>(null);
     const [pontos, setPontos] = React.useState<pontoType[]>([]);
+
+
+    const [openDialogUser, setOpenDialogUser] = React.useState(false);
+    const [user, setUser] = React.useState<IUser>({ id: -1, name: 'Alterar Funcionario' });
+
+
+    const handleCloseDialogUser = (value: IUser) => {
+        setOpenDialogUser(false);
+        setUser(value);
+    };
 
     const loadData = async () => {
         try {
@@ -430,14 +451,18 @@ const Home = () => {
 
     return (
         <div className={classes.root}>
+            <SelectUser selectedValue={user} open={openDialogUser} onClose={handleCloseDialogUser} />
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <Typography variant="h6" className={classes.title}>
-                        Nome do funcionario
-                        <IconButton edge="end" color="primary" onClick={handleClickOpen}>
-                            <AddCircleOutlineRoundedIcon fontSize="large" />
+                    <Grid item xs={12} style={{display: 'flex', alignItems: 'center'}}>
+                        <IconButton edge="end" color="primary" onClick={() => setOpenDialogUser(true)}>
+                            <CachedIcon />
                         </IconButton>
-                    </Typography>
+                        <Typography variant="subtitle1" style={{flex: 1, marginLeft: 20}}>{user.name}</Typography>
+                        <Fab color="secondary" aria-label="add" onClick={handleClickOpen}>
+                            <AddIcon />
+                        </Fab>
+                    </Grid>
                     <div className={classes.demo}>
                         <List>
                             {pontos.map((ponto : pontoType, idx) => (
