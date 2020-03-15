@@ -69,7 +69,7 @@ namespace SistemaDePonto.Controllers
 
             if (pontoExists)
             {
-                return Forbid();
+                return Forbid("Ponto já adicionado.");
             }
 
             _context.Pontos.Add(ponto);

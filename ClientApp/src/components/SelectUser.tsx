@@ -17,6 +17,7 @@ import AddIcon from '@material-ui/icons/Add';
 
 import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
+import SnackbarUtils from '../utils/SnackbarUtils'
 
 const useStyles = makeStyles({
     avatar: {
@@ -78,8 +79,9 @@ const SelectUser = (props: SelectUserProps) => {
         try {
             const { data } = await axios.post('api/users', { name });
             console.log({ data });
-        } catch (ex) {
-            console.error(ex);
+        } catch (error) {
+            console.log({ error });
+            SnackbarUtils.error(error.message);
         }
         setSaving(false);
         setOpenAddUser(false); 
@@ -120,7 +122,6 @@ const SelectUser = (props: SelectUserProps) => {
                         margin="dense"
                         id="name"
                         label="Nome"
-                        type="email"
                         fullWidth />
                 </DialogContent>
                 <DialogActions>

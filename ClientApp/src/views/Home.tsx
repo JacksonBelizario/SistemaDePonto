@@ -1,6 +1,6 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import SnackbarUtils from '../utils/SnackbarUtils'
 
 import CircularProgress from '@material-ui/core/CircularProgress';
 import List from '@material-ui/core/List';
@@ -85,9 +85,6 @@ declare type IPonto = {
 }
 
 const Home = () => {
-    React.useEffect(() => {
-        // loadData();
-    }, []);
 
     const classes = useStyles();
     const [loading, setLoading] = React.useState<boolean>(false);
@@ -129,8 +126,9 @@ const Home = () => {
                 entradaAlmoco: o.entradaAlmoco ? moment(o.entradaAlmoco) : null,
                 saida: o.saida ? moment(o.saida) : null,
             })));
-        } catch (ex) {
-            console.error(ex);
+        } catch (error) {
+            console.log({ error });
+            SnackbarUtils.error(error.message);
         }
         setLoading(false);
     } 
@@ -287,6 +285,7 @@ const Home = () => {
                         saida,
                     }
                 ]);
+                SnackbarUtils.success('Ponto inserido');
             } else {
                 const pontosCpy = [...pontos];
                 const { id, userId } = pontosCpy[edit];
@@ -311,10 +310,12 @@ const Home = () => {
                     saida,
                 };
                 setPontos(pontosCpy);
+                SnackbarUtils.success('Ponto atualizado');
             }
             handleClose();
-        } catch (ex) {
-            console.error(ex);
+        } catch (error) {
+            console.log({ error });
+            SnackbarUtils.error(error.message);
         }
         setSaving(false);
     }
@@ -329,8 +330,10 @@ const Home = () => {
 
             pontosCpy.splice(idx, 1)
             setPontos(pontosCpy);
-        } catch (ex) {
-            console.error(ex);
+            SnackbarUtils.info('Ponto removido');
+        } catch (error) {
+            console.log({ error });
+            SnackbarUtils.error(error.message);
         }
     }
 
@@ -522,4 +525,4 @@ const Home = () => {
 }
 
 
-export default connect()(Home);
+export default Home;

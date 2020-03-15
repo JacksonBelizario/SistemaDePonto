@@ -82,7 +82,7 @@ namespace SistemaDePonto.Controllers
 
             if (userExists)
             {
-                return Forbid();
+                return Forbid("Funcionário já adicionado.");
             }
 
             _context.Users.Add(user);
