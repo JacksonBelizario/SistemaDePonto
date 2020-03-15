@@ -74,12 +74,15 @@ const SelectUser = (props: SelectUserProps) => {
         if (!name) {
             return;
         }
+        setSaving(true);
         try {
             const { data } = await axios.post('api/users', { name });
             console.log({ data });
         } catch (ex) {
             console.error(ex);
         }
+        setSaving(false);
+        setOpenAddUser(false); 
         loadUsers();
     }
 
@@ -122,7 +125,7 @@ const SelectUser = (props: SelectUserProps) => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenAddUser(false)} disabled={saving} color="secondary">Cancelar</Button>
-                    <Button onClick={() => {setOpenAddUser(false); addUser()}} disabled={saving} color="primary">Salvar</Button>
+                    <Button onClick={() => {addUser()}} disabled={saving} color="primary">Salvar</Button>
                 </DialogActions>
             </Dialog>
         </>

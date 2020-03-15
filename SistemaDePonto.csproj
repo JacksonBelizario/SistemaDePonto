@@ -39,10 +39,12 @@
 
   <ItemGroup>
     <None Remove="ClientApp\src\components\SelectUser.tsx" />
+    <None Remove="ClientApp\src\views\Reports.tsx" />
   </ItemGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\components\SelectUser.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\views\Reports.tsx" />
   </ItemGroup>
 
   <ItemGroup>
