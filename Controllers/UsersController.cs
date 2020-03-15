@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaDePonto.Models;
@@ -56,7 +55,7 @@ namespace SistemaDePonto.Controllers
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(Request);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -87,7 +86,7 @@ namespace SistemaDePonto.Controllers
             }
 
             _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(Request);
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
@@ -103,7 +102,7 @@ namespace SistemaDePonto.Controllers
             }
 
             _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(Request);
 
             return user;
         }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace SistemaDePonto.Models
 {
@@ -25,15 +26,15 @@ namespace SistemaDePonto.Models
             new PontoMap(modelBuilder.Entity<Ponto>());
         }
 
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<int> SaveChangesAsync(HttpRequest httpContext, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var auditEntries = OnBeforeSaveChanges();
+            var auditEntries = OnBeforeSaveChanges(httpContext);
             var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
             await OnAfterSaveChanges(auditEntries);
             return result;
         }
 
-        private List<AuditEntry> OnBeforeSaveChanges()
+        private List<AuditEntry> OnBeforeSaveChanges(HttpRequest request)
         {
             ChangeTracker.DetectChanges();
             var auditEntries = new List<AuditEntry>();
@@ -44,8 +45,10 @@ namespace SistemaDePonto.Models
 
                 var auditEntry = new AuditEntry(entry);
                 auditEntry.TableName = entry.Metadata.GetTableName();
-                //HttpRequest request
-                //auditEntry.IpAddress = request.HttpContext.Connection.RemoteIpAddress.ToString();
+                auditEntry.IpAddress = request.HttpContext.Connection.RemoteIpAddress.ToString();
+                // auditEntry.IpAddress = request.Current.Request.UserHostAddress;
+                // auditEntry.IpAddress = request.Request.Headers["x-correlation-id"] request.ServerVariables["HTTP_X_FORWARDED_FOR"] ?? request.UserHostAddress;
+                // auditEntry.IpAddress = request.Headers["HTTP_X_FORWARDED_FOR"];
                 auditEntries.Add(auditEntry);
 
                 foreach (var property in entry.Properties)

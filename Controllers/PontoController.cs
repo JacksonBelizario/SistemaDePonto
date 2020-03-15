@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace SistemaDePonto.Controllers
 {
@@ -72,7 +73,7 @@ namespace SistemaDePonto.Controllers
             }
 
             _context.Pontos.Add(ponto);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(Request);
 
             return CreatedAtAction("Get", new { id = ponto.Id }, ponto);
         }
@@ -98,7 +99,7 @@ namespace SistemaDePonto.Controllers
                 ponto.EntradaAlmoco = data.EntradaAlmoco;
                 ponto.Saida = data.Saida;
 
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(Request);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -127,7 +128,7 @@ namespace SistemaDePonto.Controllers
             }
 
             _context.Pontos.Remove(ponto);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(Request);
 
             return Ok(ponto);
         }
