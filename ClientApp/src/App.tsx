@@ -6,6 +6,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Layout from './components/Layout';
 import Home from './views/Home';
 import Reports from './views/Reports';
+import Audits from './views/Audits';
 
 import MomentUtils from '@date-io/moment';
 import moment from "moment";
@@ -19,7 +20,8 @@ export default () => (
         <MuiPickersUtilsProvider utils={MomentUtils} libInstance={moment}>
             <Layout>
                 <Route exact path='/' component={Home} />
-                <Route path='/reports/:startDateIndex?' component={Reports} />
+                <Route path='/reports' component={Reports} />
+                <Route path='/audits' component={Audits} />
             </Layout>
         </MuiPickersUtilsProvider>
     </React.Fragment>

@@ -24,35 +24,30 @@ const columns: IColumn[] = [
         id: 'dia',
         label: 'Dia',
         minWidth: 170,
-        align: 'right',
         format: (value: number) => moment(value).format("DD/MM/YYYY"),
     },
     {
         id: 'entrada',
         label: 'Entrada',
         minWidth: 170,
-        align: 'right',
         format: (value: number) => moment(value).format("HH:mm"),
     },
     {
         id: 'saidaAlmoco',
         label: 'Saida Almoco',
         minWidth: 170,
-        align: 'right',
         format: (value: number) => moment(value).format("HH:mm"),
     },
     {
         id: 'entradaAlmoco',
         label: 'Entrada Almoco',
         minWidth: 170,
-        align: 'right',
         format: (value: number) => moment(value).format("HH:mm"),
     },
     {
         id: 'saida',
         label: 'Saida',
         minWidth: 170,
-        align: 'right',
         format: (value: number) => moment(value).format("HH:mm"),
     },
     {
@@ -70,7 +65,6 @@ const columnsMonth: IColumn[] = [
         id: 'month',
         label: 'Mês',
         minWidth: 170,
-        align: 'right',
     },
     {
         id: 'seconds',

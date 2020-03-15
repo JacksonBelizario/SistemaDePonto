@@ -90,7 +90,9 @@ const CustomTable = (props: CustomTableProps) => {
                 page={page}
                 onChangePage={handleChangePage}
                 onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
+                labelRowsPerPage="Linhas por página:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to === -1 ? count : to} de ${count !== -1 ? count : `mais que ${to}`}`}
+        />
         </React.Fragment>
     );
 };

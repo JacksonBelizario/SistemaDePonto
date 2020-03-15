@@ -39,6 +39,7 @@ export default function NavMenu() {
                     </Typography>
                     <Button component={RouterLink} to="/" color="inherit">Home</Button>
                     <Button component={RouterLink} to="/reports" color="inherit">Relatorios</Button>
+                    <Button component={RouterLink} to="/audits" color="inherit">Auditoria</Button>
                 </Toolbar>
             </AppBar>
         </div>
