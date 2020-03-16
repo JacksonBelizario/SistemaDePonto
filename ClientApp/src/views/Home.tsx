@@ -248,6 +248,7 @@ const Home = () => {
 
     const handleClose = () => {
         setOpen(false);
+        setDia(null);
         setEntrada(null);
         setSaidaAlmoco(null);
         setEntradaAlmoco(null);
