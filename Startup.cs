@@ -28,6 +28,7 @@ namespace SistemaDePonto
 
 
             var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+            // var connectionString = "host=localhost;port=5432;database=sistemadeponto;username=usuario;password=usuario";
             services.AddDbContext<SistemaDbContext>(options =>
                 options.UseNpgsql(
                     connectionString

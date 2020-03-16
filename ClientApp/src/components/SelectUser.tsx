@@ -78,7 +78,7 @@ const SelectUser = (props: SelectUserProps) => {
         setSaving(true);
         try {
             const { data } = await axios.post('api/users', { name });
-            console.log({ data });
+            SnackbarUtils.success('Funcionário cadastrado');
         } catch (error) {
             console.log({ error });
             SnackbarUtils.error(error.message);
